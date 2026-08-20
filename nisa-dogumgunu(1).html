@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nisa'nın Bahçesi 🌷</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Quicksand:wght@400;500;600;700&display=swap');
+
+:root{
+  --cream:#FFF8F0;
+  --blush:#FFD9E5;
+  --blush-deep:#FFB8CE;
+  --lavender:#E6D9F7;
+  --lavender-deep:#C9AEEA;
+  --leaf:#8FBC94;
+  --leaf-deep:#6FA377;
+  --plum:#5B3A5C;
+  --plum-soft:#8A6B8C;
+  --gold:#F4C15D;
+  --ink:#3D2A3F;
+  --panel:#FFFDF9;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'Quicksand', sans-serif;
+  background: linear-gradient(180deg, var(--blush) 0%, var(--lavender) 35%, var(--cream) 70%, var(--blush) 100%);
+  color: var(--ink);
+  overflow-x:hidden;
+  cursor: default;
+}
+
+.pixel-font{
+  font-family:'Press Start 2P', monospace;
+  line-height:1.6;
+}
+
+canvas{
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  display:block;
+}
+
+/* pixel-notched card / dialogue-box style used throughout */
+.pixel-panel{
+  background: var(--panel);
+  border: 4px solid var(--ink);
+  clip-path: polygon(
+    0 10px, 10px 10px, 10px 0,
+    calc(100% - 10px) 0, calc(100% - 10px) 10px, 100% 10px,
+    100% calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) 100%,
+    10px 100%, 10px calc(100% - 10px), 0 calc(100% - 10px)
+  );
+  padding: 24px;
+  box-shadow: 6px 6px 0 rgba(61,42,63,0.15);
+}
+
+.pixel-btn{
+  font-family:'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  background: var(--gold);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  clip-path: polygon(
+    0 6px, 6px 6px, 6px 0,
+    calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%,
+    6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+  );
+  padding: 14px 22px;
+  cursor:pointer;
+  transition: transform 0.1s ease;
+  box-shadow: 4px 4px 0 rgba(61,42,63,0.35);
+}
+.pixel-btn:hover{ background: #FFD989; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(61,42,63,0.35); }
+.pixel-btn:active{ transform: translate(2px,2px); box-shadow: 1px 1px 0 rgba(61,42,63,0.35); }
+
+section{
+  position:relative;
+  padding: 70px 20px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+/* ---------- HERO ---------- */
+#hero{
+  min-height: 100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding: 40px 20px;
+  position:relative;
+}
+
+.blink-tag{
+  font-family:'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: var(--plum-soft);
+  letter-spacing: 2px;
+  animation: blink 1.4s steps(1) infinite;
+  margin-bottom: 18px;
+}
+@keyframes blink{ 50%{ opacity: 0; } }
+
+.title{
+  font-family:'Press Start 2P', monospace;
+  font-size: clamp(1.4rem, 6vw, 2.6rem);
+  color: var(--plum);
+  text-shadow: 3px 3px 0 var(--blush-deep);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.subtitle{
+  font-size: 1.05rem;
+  font-weight:600;
+  color: var(--plum-soft);
+  margin-bottom: 34px;
+}
+
+#scene-canvas{
+  margin: 10px auto 30px;
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 rgba(61,42,63,0.2);
+  max-width: 100%;
+  height:auto;
+}
+
+.quest-box{
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto 30px;
+}
+.quest-title{
+  font-family:'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  color: var(--plum);
+  margin-bottom: 12px;
+}
+.countdown{
+  font-family:'Press Start 2P', monospace;
+  font-size: clamp(1rem, 4vw, 1.4rem);
+  color: var(--leaf-deep);
+  letter-spacing: 1px;
+}
+.countdown-label{
+  font-size: 0.65rem;
+  font-family:'Quicksand',sans-serif;
+  font-weight:600;
+  color: var(--plum-soft);
+  margin-top: 8px;
+}
+
+/* ---------- CHAPTER HEADERS ---------- */
+.chapter-label{
+  font-family:'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: var(--gold);
+  background: var(--plum);
+  display:inline-block;
+  padding: 6px 12px;
+  margin-bottom: 18px;
+}
+.chapter-title{
+  font-family:'Press Start 2P', monospace;
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  color: var(--plum);
+  margin-bottom: 30px;
+  line-height:1.6;
+}
+
+/* ---------- DIALOGUE BOX ---------- */
+.dialogue{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+  margin-bottom: 40px;
+}
+.dialogue-portrait{
+  flex-shrink:0;
+  border: 3px solid var(--ink);
+  background: var(--blush);
+  padding:4px;
+}
+.dialogue-text{
+  font-weight:600;
+  font-size: 1rem;
+  line-height:1.7;
+  position:relative;
+  padding-right: 20px;
+}
+.continue-arrow{
+  display:inline-block;
+  margin-left:6px;
+  animation: bob 0.9s infinite;
+  color: var(--gold);
+}
+@keyframes bob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(4px);} }
+
+/* ---------- GARDEN ---------- */
+.garden-row{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap: 6px 2px;
+  margin: 20px 0 10px;
+}
+.lily-slot{
+  cursor:pointer;
+  text-align:center;
+  width: 96px;
+  transition: transform 0.15s ease;
+}
+.lily-slot:hover{ transform: translateY(-4px) scale(1.05); }
+.lily-hint{
+  font-size: 0.65rem;
+  font-family:'Press Start 2P', monospace;
+  color: var(--plum-soft);
+  opacity:0.7;
+  margin-top:2px;
+}
+.reason-card{
+  max-width: 460px;
+  margin: 20px auto 0;
+  text-align:center;
+  font-weight:600;
+  font-size: 1.05rem;
+  color: var(--plum);
+  min-height: 30px;
+  transition: opacity 0.3s ease;
+}
+.progress-dots{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin-top: 18px;
+}
+.dot{
+  width:10px; height:10px;
+  background: var(--blush-deep);
+  border: 2px solid var(--ink);
+}
+.dot.done{ background: var(--gold); }
+
+/* ---------- CATS ---------- */
+.cat-row{
+  display:flex;
+  justify-content:center;
+  gap: 24px;
+  flex-wrap:wrap;
+  margin: 20px 0;
+}
+.cat-slot{
+  cursor:pointer;
+  position:relative;
+  transition: transform 0.15s ease;
+}
+.cat-slot:hover{ transform: scale(1.08) rotate(-2deg); }
+.cat-bubble{
+  position:absolute;
+  top:-14px;
+  left:50%;
+  transform: translate(-50%,-100%) scale(0);
+  transform-origin:bottom center;
+  background: var(--panel);
+  border: 3px solid var(--ink);
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  font-weight:700;
+  white-space:nowrap;
+  transition: transform 0.2s ease;
+  pointer-events:none;
+}
+.cat-slot.active .cat-bubble{ transform: translate(-50%,-100%) scale(1); }
+
+/* ---------- LETTER ---------- */
+.envelope-wrap{
+  text-align:center;
+}
+#envelope-canvas{
+  cursor:pointer;
+  margin: 0 auto;
+  transition: transform 0.2s ease;
+}
+#envelope-canvas:hover{ transform: scale(1.03); }
+.open-hint{
+  font-family:'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  color: var(--plum-soft);
+  margin-top: 14px;
+}
+.letter-content{
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.6s ease;
+}
+.letter-content.open{
+  max-height: 900px;
+  margin-top: 24px;
+}
+.letter-body{
+  font-size: 1.05rem;
+  line-height: 1.9;
+  font-weight: 600;
+  color: var(--ink);
+}
+.letter-body p{ margin-bottom: 14px; }
+.signature{
+  text-align:right;
+  font-style:normal;
+  font-weight:700;
+  color: var(--plum);
+  margin-top: 10px;
+}
+
+/* ---------- ENDING ---------- */
+#ending{
+  text-align:center;
+  padding-bottom: 120px;
+}
+.ending-title{
+  font-family:'Press Start 2P', monospace;
+  font-size: clamp(1.3rem, 5vw, 2rem);
+  color: var(--plum);
+  text-shadow: 3px 3px 0 var(--gold);
+  margin-bottom: 18px;
+  line-height:1.7;
+}
+.ending-msg{
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--plum-soft);
+  margin-bottom: 30px;
+}
+.credits{
+  font-family:'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: var(--plum-soft);
+  opacity: 0.75;
+  margin-top: 40px;
+  line-height: 2.2;
+}
+
+/* falling particles */
+#particle-layer{
+  position: fixed;
+  inset: 0;
+  pointer-events:none;
+  z-index: 999;
+  overflow:hidden;
+}
+.particle{
+  position:absolute;
+  top:-40px;
+}
+
+::selection{ background: var(--gold); color: var(--ink); }
+
+@media (max-width:480px){
+  section{ padding: 50px 14px; }
+  .dialogue{ gap:10px; }
+}
+</style>
+</head>
+<body>
+
+<div id="particle-layer"></div>
+
+<!-- ===================== HERO / TITLE SCREEN ===================== -->
+<section id="hero">
+  <div class="blink-tag">OYUN BAŞLIYOR...</div>
+  <div class="title">NİSA'NIN<br>BAHÇESİ</div>
+  <div class="subtitle">~ küçük ve tatlı bir doğum günü hikayesi ~</div>
+
+  <canvas id="scene-canvas" width="600" height="220"></canvas>
+
+  <div class="quest-box pixel-panel">
+    <div class="quest-title">🎯 GÖREV: 21 AĞUSTOS'U KUTLA</div>
+    <div class="countdown" id="countdown">--:--:--</div>
+    <div class="countdown-label" id="countdown-label">kalan süre</div>
+  </div>
+
+  <button class="pixel-btn" onclick="document.getElementById('chapter1').scrollIntoView()">▶ OYUNA BAŞLA</button>
+</section>
+
+<!-- ===================== CHAPTER 1: GARDEN ===================== -->
+<section id="chapter1">
+  <div class="chapter-label">BÖLÜM 1</div>
+  <div class="chapter-title">Bahçe</div>
+
+  <div class="dialogue">
+    <div class="dialogue-portrait" id="cat-portrait-holder"></div>
+    <div class="dialogue-text">
+      Miyav! Ben Pamuk 🐾, Nisa'nın bahçesindeki kedisiyim. Zambaklar kadar güzel bir kalbi var —
+      hadi bu zambakları birer birer açalım ve onu neden bu kadar çok sevdiğimizi keşfedelim.
+      <span class="continue-arrow">▼</span>
+    </div>
+  </div>
+
+  <div class="garden-row" id="garden-row"></div>
+  <div class="reason-card" id="reason-card">bir zambağa dokun ✨</div>
+  <div class="progress-dots" id="progress-dots"></div>
+</section>
+
+<!-- ===================== CHAPTER 2: CATS ===================== -->
+<section id="chapter2">
+  <div class="chapter-label">BÖLÜM 2</div>
+  <div class="chapter-title">Pamuk'un Arkadaşları</div>
+
+  <div class="dialogue">
+    <div class="dialogue-portrait" id="cat-portrait-holder-2"></div>
+    <div class="dialogue-text">
+      Bahçede ben yalnız değilim! Nisa kediler kadar sevimli olduğu için, arkadaşlarım da
+      ona bir şeyler söylemek istiyor. Onlara dokun. <span class="continue-arrow">▼</span>
+    </div>
+  </div>
+
+  <div class="cat-row" id="cat-row"></div>
+</section>
+
+<!-- ===================== CHAPTER 3: LETTER ===================== -->
+<section id="chapter3">
+  <div class="chapter-label">BÖLÜM 3</div>
+  <div class="chapter-title">Mektup</div>
+
+  <div class="envelope-wrap">
+    <canvas id="envelope-canvas" width="200" height="140" onclick="openLetter()"></canvas>
+    <div class="open-hint" id="open-hint">✉ AÇMAK İÇİN DOKUN</div>
+
+    <div class="letter-content pixel-panel" id="letter-content">
+      <div class="letter-body">
+        <p>Sevgili Nisa,</p>
+        <p>Bugün senin günün. Zambaklar kadar zarif, kediler kadar sıcak ve sevimli bir kalbin var —
+        ve bu bahçedeki her zambak, her kedi biraz da senin gibi olsun diye buraya kondu.</p>
+        <p>Yanımda olduğun her gün daha güzel geçiyor. Gülüşün en sevdiğim şey, huzurun en
+        kıymetli hediyem. Bu yıl da, önümüzdeki bütün yıllar da seninle daha nice güzel
+        anlar biriktirmek istiyorum.</p>
+        <p>İyi ki doğdun, iyi ki varsın. Seni çok seviyorum. 🌷🐾</p>
+      </div>
+      <div class="signature">— seni seven kalbin ❤</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ENDING ===================== -->
+<section id="ending">
+  <div class="ending-title">TEBRİKLER!<br>NİSA +1 YAŞ KAZANDI 🎉</div>
+  <div class="ending-msg">Nice mutlu, sağlıklı ve zambak kokulu yıllara Nisa 🌷🐾</div>
+  <button class="pixel-btn" onclick="celebrate(true)">🎊 KUTLAMAYI TEKRARLA</button>
+  <div class="credits">
+    OYUN BİTTİ<br>
+    TEŞEKKÜRLER NİSA<br>
+    ❤ ❤ ❤
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   PIXEL SPRITE ENGINE
+   ============================================================ */
+function drawSprite(canvas, rows, palette, pixelSize){
+  const cols = rows[0].length;
+  canvas.width = cols * pixelSize;
+  canvas.height = rows.length * pixelSize;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  rows.forEach((row, y) => {
+    for(let x=0; x<row.length; x++){
+      const ch = row[x];
+      if(ch !== '.' && palette[ch]){
+        ctx.fillStyle = palette[ch];
+        ctx.fillRect(x*pixelSize, y*pixelSize, pixelSize, pixelSize);
+      }
+    }
+  });
+}
+
+/* ---- palettes ---- */
+const PAL_CAT = { B:'#3D2817', F:'#F0A868', E:'#2D1B0E', P:'#F5A3B5' };
+const PAL_CAT_GREY = { B:'#332E36', F:'#C9BFC7', E:'#2D1B0E', P:'#F5A3B5' };
+const PAL_CAT_WHITE = { B:'#B8A9BA', F:'#FFF8F0', E:'#4A2E4A', P:'#F5A3B5' };
+const PAL_LILY = { P:'#FFEFF5', Y:'#F4C15D', S:'#8FBC94', L:'#7BAA7F' };
+const PAL_LILY_BUD = { X:'#E3A8C9', S:'#8FBC94', L:'#7BAA7F' };
+const PAL_HEART = { X:'#FF7FA6' };
+const PAL_STAR = { X:'#F4C15D' };
+
+/* ---- cat sprite (11 x 14) ---- */
+const CAT_ROWS = [
+  ".B.......B.",
+  "BB.......BB",
+  "BFB.....BFB",
+  ".BFFFFFFFB.",
+  "BFFFFFFFFFB",
+  "BF.EE.EE.FB",
+  "BFF..P..FFB",
+  "BFF.....FFB",
+  ".BFFFFFFFB.",
+  "..BBBBBBB..",
+  "...BFFFB...",
+  "..BFFFFFB..",
+  "..BFFFFFB..",
+  "...BBBBB..."
+];
+
+/* ---- lily bloom (9 x 14) ---- */
+const LILY_BLOOM_ROWS = [
+  "..P...P..",
+  ".PPPPPPP.",
+  "PP.PYP.PP",
+  "PPPPYPPPP",
+  "PPPYYYPPP",
+  ".PPYYYPP.",
+  "..PYYYP..",
+  "...YYY...",
+  "....S....",
+  "....S....",
+  "..L.S.L..",
+  "....S....",
+  "....S....",
+  "....S...."
+];
+
+/* ---- lily bud (9 x 14) ---- */
+const LILY_BUD_ROWS = [
+  "....X....",
+  "...XXX...",
+  "..XXXXX..",
+  "..XXXXX..",
+  "...XXX...",
+  "....S....",
+  "....S....",
+  "..L.S.L..",
+  "....S....",
+  "....S....",
+  "....S....",
+  "....S....",
+  "....S....",
+  "....S...."
+];
+
+/* ---- heart (7 x 6) ---- */
+const HEART_ROWS = [
+  ".XX.XX.",
+  "XXXXXXX",
+  "XXXXXXX",
+  ".XXXXX.",
+  "..XXX..",
+  "...X..."
+];
+
+/* ---- star (7 x 7) ---- */
+const STAR_ROWS = [
+  "...X...",
+  "...X...",
+  "X.XXX.X",
+  "XXXXXXX",
+  "X.XXX.X",
+  "...X...",
+  "...X..."
+];
+
+/* ============================================================
+   HERO SCENE
+   ============================================================ */
+function drawScene(){
+  const c = document.getElementById('scene-canvas');
+  c.style.width = '100%';
+  c.style.maxWidth = '600px';
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const w = c.width, h = c.height;
+
+  // sky
+  const sky = ctx.createLinearGradient(0,0,0,h*0.7);
+  sky.addColorStop(0, '#FFD9E5');
+  sky.addColorStop(1, '#F3E3FA');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0,0,w,h*0.72);
+
+  // sun/moon pixel circle-ish (blocky)
+  ctx.fillStyle = '#F4C15D';
+  ctx.fillRect(w-100, 24, 40, 40);
+  ctx.fillStyle = '#FFE1A0';
+  ctx.fillRect(w-108, 32, 8, 24);
+  ctx.fillRect(w-92, 16, 24, 8);
+
+  // grass
+  ctx.fillStyle = '#8FBC94';
+  ctx.fillRect(0, h*0.72, w, h*0.28);
+  ctx.fillStyle = '#7BAA7F';
+  for(let x=0; x<w; x+=14){
+    ctx.fillRect(x, h*0.72, 6, 6);
+  }
+
+  // small lilies scattered in scene (static, decorative)
+  const bloomCanvas = document.createElement('canvas');
+  drawSprite(bloomCanvas, LILY_BLOOM_ROWS, PAL_LILY, 4);
+  [40, 150, 470, 540].forEach((x,i)=>{
+    ctx.drawImage(bloomCanvas, x, h - 108 - (i%2===0?0:6));
+  });
+
+  // cat sitting in the grass
+  const catCanvas = document.createElement('canvas');
+  drawSprite(catCanvas, CAT_ROWS, PAL_CAT, 5);
+  ctx.drawImage(catCanvas, w/2 - 27, h - 100);
+}
+
+/* ============================================================
+   COUNTDOWN
+   ============================================================ */
+function updateCountdown(){
+  const target = new Date('2026-08-21T00:00:00');
+  const now = new Date();
+  const diff = target - now;
+  const el = document.getElementById('countdown');
+  const label = document.getElementById('countdown-label');
+
+  if(diff <= 0){
+    el.textContent = "🎉 BUGÜN!";
+    label.textContent = "iyi ki doğdun Nisa";
+    return;
+  }
+  const totalSec = Math.floor(diff/1000);
+  const days = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400)/3600);
+  const mins = Math.floor((totalSec % 3600)/60);
+  const secs = totalSec % 60;
+  const pad = n => String(n).padStart(2,'0');
+  el.textContent = days > 0
+    ? `${days}g ${pad(hours)}:${pad(mins)}:${pad(secs)}`
+    : `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
+  label.textContent = "doğum gününe kalan süre";
+}
+setInterval(updateCountdown, 1000);
+
+/* ============================================================
+   PORTRAIT (Pamuk the cat, small, blinking)
+   ============================================================ */
+function makePortrait(container){
+  const c = document.createElement('canvas');
+  container.appendChild(c);
+  drawSprite(c, CAT_ROWS, PAL_CAT, 4);
+  return c;
+}
+makePortrait(document.getElementById('cat-portrait-holder'));
+makePortrait(document.getElementById('cat-portrait-holder-2'));
+
+/* ============================================================
+   GARDEN — CLICKABLE LILIES
+   ============================================================ */
+const REASONS = [
+  "Zambaklar kadar zarif ve güzelsin. 🌷",
+  "Kediler kadar sevimli ve oyuncusun. 🐾",
+  "Gülüşün, bu bahçedeki en sevdiğim çiçek. 😊",
+  "Yanında her an huzur buluyorum. 🤍",
+  "Kalbin, sevdiğin çiçekler kadar saf. ✨",
+  "Seninle geçen her gün ayrı bir hediye. 🎁"
+];
+
+const gardenRow = document.getElementById('garden-row');
+const dotsRow = document.getElementById('progress-dots');
+const reasonCard = document.getElementById('reason-card');
+let openedCount = 0;
+
+REASONS.forEach((reason, i) => {
+  const slot = document.createElement('div');
+  slot.className = 'lily-slot';
+  const canvas = document.createElement('canvas');
+  slot.appendChild(canvas);
+  const hint = document.createElement('div');
+  hint.className = 'lily-hint';
+  hint.textContent = '● dokun';
+  slot.appendChild(hint);
+  gardenRow.appendChild(slot);
+
+  drawSprite(canvas, LILY_BUD_ROWS, PAL_LILY_BUD, 5);
+
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dotsRow.appendChild(dot);
+
+  let bloomed = false;
+  slot.addEventListener('click', () => {
+    if(!bloomed){
+      bloomed = true;
+      drawSprite(canvas, LILY_BLOOM_ROWS, PAL_LILY, 5);
+      hint.style.opacity = 0;
+      dot.classList.add('done');
+      openedCount++;
+    }
+    reasonCard.style.opacity = 0;
+    setTimeout(()=>{
+      reasonCard.textContent = reason;
+      reasonCard.style.opacity = 1;
+    }, 150);
+    spawnBurst(canvas, 'heart');
+  });
+});
+
+/* ============================================================
+   CATS ROW
+   ============================================================ */
+const CAT_FRIENDS = [
+  { palette: PAL_CAT_GREY, text: "Miyav~ nice yaşlara!" },
+  { palette: PAL_CAT_WHITE, text: "Bugün sana özel 🎂" },
+  { palette: PAL_CAT, text: "Pamuk seni çok sever!" }
+];
+
+const catRow = document.getElementById('cat-row');
+CAT_FRIENDS.forEach(friend => {
+  const slot = document.createElement('div');
+  slot.className = 'cat-slot';
+  const bubble = document.createElement('div');
+  bubble.className = 'cat-bubble';
+  bubble.textContent = friend.text;
+  const canvas = document.createElement('canvas');
+  drawSprite(canvas, CAT_ROWS, friend.palette, 5);
+  slot.appendChild(bubble);
+  slot.appendChild(canvas);
+  catRow.appendChild(slot);
+
+  slot.addEventListener('click', () => {
+    slot.classList.toggle('active');
+    spawnBurst(canvas, 'heart');
+  });
+});
+
+/* ============================================================
+   ENVELOPE
+   ============================================================ */
+function drawEnvelope(sealed){
+  const c = document.getElementById('envelope-canvas');
+  c.style.width = '200px';
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0,0,c.width,c.height);
+
+  ctx.fillStyle = '#FFEFF5';
+  ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle = '#3D2817';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(2,2,c.width-4,c.height-4);
+
+  ctx.beginPath();
+  ctx.moveTo(4,4);
+  ctx.lineTo(c.width/2, c.height/2);
+  ctx.lineTo(c.width-4,4);
+  ctx.strokeStyle = '#3D2817';
+  ctx.stroke();
+
+  if(sealed){
+    ctx.fillStyle = '#F4C15D';
+    ctx.fillRect(c.width/2 - 14, c.height/2 - 14, 28, 28);
+    ctx.strokeStyle = '#3D2817';
+    ctx.strokeRect(c.width/2 - 14, c.height/2 - 14, 28, 28);
+  }
+}
+drawEnvelope(true);
+
+let letterOpened = false;
+function openLetter(){
+  if(letterOpened) return;
+  letterOpened = true;
+  drawEnvelope(false);
+  document.getElementById('letter-content').classList.add('open');
+  document.getElementById('open-hint').textContent = "💌 mektup açıldı";
+  spawnBurst(document.getElementById('envelope-canvas'), 'star');
+}
+
+/* ============================================================
+   PARTICLE EFFECTS
+   ============================================================ */
+const particleLayer = document.getElementById('particle-layer');
+
+function spawnBurst(anchorEl, kind){
+  const rect = anchorEl.getBoundingClientRect();
+  const rows = kind === 'heart' ? HEART_ROWS : STAR_ROWS;
+  const palette = kind === 'heart' ? PAL_HEART : PAL_STAR;
+  for(let i=0;i<6;i++){
+    const c = document.createElement('canvas');
+    drawSprite(c, rows, palette, 3);
+    c.style.position = 'fixed';
+    c.style.left = (rect.left + rect.width/2 + (Math.random()*60-30)) + 'px';
+    c.style.top = (rect.top + rect.height/2) + 'px';
+    c.style.opacity = '1';
+    c.style.transition = 'transform 0.9s ease-out, opacity 0.9s ease-out';
+    c.style.zIndex = 1000;
+    document.body.appendChild(c);
+    requestAnimationFrame(()=>{
+      const dx = (Math.random()*80-40);
+      const dy = -(60 + Math.random()*60);
+      c.style.transform = `translate(${dx}px, ${dy}px) scale(1.4)`;
+      c.style.opacity = '0';
+    });
+    setTimeout(()=> c.remove(), 950);
+  }
+}
+
+function celebrate(force){
+  for(let i=0;i<28;i++){
+    setTimeout(()=>{
+      const kind = Math.random() > 0.5 ? 'heart' : 'star';
+      const rows = kind === 'heart' ? HEART_ROWS : STAR_ROWS;
+      const palette = kind === 'heart' ? PAL_HEART : PAL_STAR;
+      const c = document.createElement('canvas');
+      drawSprite(c, rows, palette, 3 + Math.floor(Math.random()*2));
+      c.className = 'particle';
+      c.style.left = (Math.random()*100) + 'vw';
+      c.style.opacity = '0.95';
+      c.style.transition = `transform ${2.5 + Math.random()*1.5}s linear, opacity 0.5s ease ${2 + Math.random()}s`;
+      particleLayer.appendChild(c);
+      requestAnimationFrame(()=>{
+        c.style.transform = `translateY(${window.innerHeight + 60}px) rotate(${Math.random()>0.5?360:-360}deg)`;
+        c.style.opacity = '0';
+      });
+      setTimeout(()=> c.remove(), 4200);
+    }, i*80);
+  }
+}
+
+/* trigger celebration once ending scrolls into view */
+const endingObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      celebrate();
+      endingObserver.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+endingObserver.observe(document.getElementById('ending'));
+
+/* ============================================================
+   INIT
+   ============================================================ */
+drawScene();
+updateCountdown();
+window.addEventListener('resize', drawScene);
+</script>
+
+</body>
+</html>
