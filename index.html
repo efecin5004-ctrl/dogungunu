@@ -40,9 +40,6 @@ body{
 }
 
 canvas{
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
   display:block;
 }
 
@@ -209,22 +206,48 @@ section{
   display:flex;
   flex-wrap:wrap;
   justify-content:center;
-  gap: 6px 2px;
+  gap: 12px 8px;
   margin: 20px 0 10px;
 }
 .lily-slot{
   cursor:pointer;
   text-align:center;
   width: 96px;
-  transition: transform 0.15s ease;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.lily-slot:hover{ transform: translateY(-4px) scale(1.05); }
+.lily-slot:hover{ transform: translateY(-6px) scale(1.08); }
+
+.lily-icon-holder{
+  width: 80px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lily-svg {
+  filter: drop-shadow(0px 4px 6px rgba(61,42,63,0.15));
+  transition: transform 0.3s ease;
+}
+
+.bloom-anim {
+  animation: bloomPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bloomPop {
+  0% { transform: scale(0.5) rotate(-10deg); opacity: 0.3; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
 .lily-hint{
   font-size: 0.65rem;
   font-family:'Press Start 2P', monospace;
   color: var(--plum-soft);
   opacity:0.7;
-  margin-top:2px;
+  margin-top:4px;
 }
 .reason-card{
   max-width: 460px;
@@ -463,7 +486,68 @@ section{
 
 <script>
 /* ============================================================
-   PIXEL SPRITE ENGINE
+   VECTOR LILY SVG DEFINITIONS
+   ============================================================ */
+const SVG_LILY_BUD = `
+<svg viewBox="0 0 100 120" width="70" height="85" class="lily-svg">
+  <defs>
+    <linearGradient id="budGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#8FBC94"/>
+      <stop offset="35%" stop-color="#FFB8CE"/>
+      <stop offset="100%" stop-color="#FFF0F5"/>
+    </linearGradient>
+    <linearGradient id="stemGradBud" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6FA377"/>
+      <stop offset="100%" stop-color="#8FBC94"/>
+    </linearGradient>
+  </defs>
+  <!-- Stem -->
+  <path d="M 50 65 Q 48 90 50 115" stroke="url(#stemGradBud)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Leaves -->
+  <path d="M 49 92 Q 32 82 22 90 Q 38 98 49 94 Z" fill="#6FA377"/>
+  <path d="M 51 85 Q 68 75 78 83 Q 62 92 51 87 Z" fill="#6FA377"/>
+  <!-- Closed Bud -->
+  <path d="M 50 68 C 30 60 35 25 50 18 C 65 25 70 60 50 68 Z" fill="url(#budGrad)" stroke="#E6A5B8" stroke-width="1.5"/>
+  <path d="M 50 68 C 45 50 48 30 50 18 C 52 30 55 50 50 68 Z" fill="none" stroke="#D88A9E" stroke-width="1"/>
+</svg>`;
+
+const SVG_LILY_BLOOM = `
+<svg viewBox="0 0 100 120" width="75" height="90" class="lily-svg bloom-anim">
+  <defs>
+    <linearGradient id="petalGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#FFD9E5"/>
+      <stop offset="60%" stop-color="#FFF0F5"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <linearGradient id="stemGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6FA377"/>
+      <stop offset="100%" stop-color="#8FBC94"/>
+    </linearGradient>
+  </defs>
+  <!-- Stem -->
+  <path d="M 50 65 Q 48 90 50 115" stroke="url(#stemGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Leaves -->
+  <path d="M 49 90 Q 30 80 20 88 Q 38 98 49 92 Z" fill="#6FA377"/>
+  <path d="M 51 82 Q 70 72 80 80 Q 62 90 51 84 Z" fill="#6FA377"/>
+  <!-- Back Petals -->
+  <path d="M 50 60 Q 20 30 10 45 Q 26 64 50 60 Z" fill="url(#petalGrad)" stroke="#EAB8C9" stroke-width="1.5"/>
+  <path d="M 50 60 Q 80 30 90 45 Q 74 64 50 60 Z" fill="url(#petalGrad)" stroke="#EAB8C9" stroke-width="1.5"/>
+  <path d="M 50 60 Q 50 10 50 8 Q 50 10 50 60 Z" fill="url(#petalGrad)" stroke="#EAB8C9" stroke-width="1.5"/>
+  <!-- Front Petals -->
+  <path d="M 50 60 C 22 20 18 38 30 60 C 38 66 46 63 50 60 Z" fill="#FFF5F8" stroke="#E6A5B8" stroke-width="1.5"/>
+  <path d="M 50 60 C 78 20 82 38 70 60 C 62 66 54 63 50 60 Z" fill="#FFF5F8" stroke="#E6A5B8" stroke-width="1.5"/>
+  <path d="M 50 60 C 32 78 68 78 50 60 Z" fill="#FFEAF1" stroke="#E6A5B8" stroke-width="1.5"/>
+  <!-- Stamens -->
+  <path d="M 50 60 Q 40 40 35 34" stroke="#8FBC94" stroke-width="1.5" fill="none"/>
+  <circle cx="35" cy="34" r="3" fill="#F4C15D"/>
+  <path d="M 50 60 Q 50 38 50 30" stroke="#8FBC94" stroke-width="1.5" fill="none"/>
+  <circle cx="50" cy="30" r="3" fill="#F4C15D"/>
+  <path d="M 50 60 Q 60 40 65 34" stroke="#8FBC94" stroke-width="1.5" fill="none"/>
+  <circle cx="65" cy="34" r="3" fill="#F4C15D"/>
+</svg>`;
+
+/* ============================================================
+   PIXEL SPRITE ENGINE (For Cats & Particle UI)
    ============================================================ */
 function drawSprite(canvas, rows, palette, pixelSize){
   const cols = rows[0].length;
@@ -487,8 +571,6 @@ function drawSprite(canvas, rows, palette, pixelSize){
 const PAL_CAT = { B:'#3D2817', F:'#F0A868', E:'#2D1B0E', P:'#F5A3B5' };
 const PAL_CAT_GREY = { B:'#332E36', F:'#C9BFC7', E:'#2D1B0E', P:'#F5A3B5' };
 const PAL_CAT_WHITE = { B:'#B8A9BA', F:'#FFF8F0', E:'#4A2E4A', P:'#F5A3B5' };
-const PAL_LILY = { P:'#FFEFF5', Y:'#F4C15D', S:'#8FBC94', L:'#7BAA7F' };
-const PAL_LILY_BUD = { X:'#E3A8C9', S:'#8FBC94', L:'#7BAA7F' };
 const PAL_HEART = { X:'#FF7FA6' };
 const PAL_STAR = { X:'#F4C15D' };
 
@@ -508,42 +590,6 @@ const CAT_ROWS = [
   "..BFFFFFB..",
   "..BFFFFFB..",
   "...BBBBB..."
-];
-
-/* ---- lily bloom (9 x 14) ---- */
-const LILY_BLOOM_ROWS = [
-  "..P...P..",
-  ".PPPPPPP.",
-  "PP.PYP.PP",
-  "PPPPYPPPP",
-  "PPPYYYPPP",
-  ".PPYYYPP.",
-  "..PYYYP..",
-  "...YYY...",
-  "....S....",
-  "....S....",
-  "..L.S.L..",
-  "....S....",
-  "....S....",
-  "....S...."
-];
-
-/* ---- lily bud (9 x 14) ---- */
-const LILY_BUD_ROWS = [
-  "....X....",
-  "...XXX...",
-  "..XXXXX..",
-  "..XXXXX..",
-  "...XXX...",
-  "....S....",
-  "....S....",
-  "..L.S.L..",
-  "....S....",
-  "....S....",
-  "....S....",
-  "....S....",
-  "....S....",
-  "....S...."
 ];
 
 /* ---- heart (7 x 6) ---- */
@@ -568,6 +614,78 @@ const STAR_ROWS = [
 ];
 
 /* ============================================================
+   VECTOR LILY CANVAS DRAWING (HERO SCENE)
+   ============================================================ */
+function drawVectorLily(ctx, x, y, scale) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+
+  // Stem
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(-2, -25, 0, -45);
+  ctx.strokeStyle = '#6FA377';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Leaves
+  ctx.beginPath();
+  ctx.moveTo(-1, -15);
+  ctx.quadraticCurveTo(-15, -20, -18, -12);
+  ctx.quadraticCurveTo(-10, -5, -1, -10);
+  ctx.fillStyle = '#6FA377';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(1, -22);
+  ctx.quadraticCurveTo(15, -28, 18, -20);
+  ctx.quadraticCurveTo(10, -13, 1, -18);
+  ctx.fillStyle = '#6FA377';
+  ctx.fill();
+
+  // Flower Petals
+  ctx.translate(0, -45);
+  const petalColors = ['#FFEBF1', '#FFF5F8', '#FFD9E5', '#FFF0F5', '#FFC2D5', '#FFEBF1'];
+  for(let i=0; i<6; i++){
+    const angle = (i * 60) * Math.PI / 180;
+    ctx.save();
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(-10, -18, 0, -30);
+    ctx.quadraticCurveTo(10, -18, 0, 0);
+    ctx.fillStyle = petalColors[i];
+    ctx.fill();
+    ctx.strokeStyle = '#E6A5B8';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Stamens
+  for(let i=0; i<3; i++){
+    const angle = (i * 120 - 60) * Math.PI / 180;
+    ctx.save();
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(3, -8, 4, -15);
+    ctx.strokeStyle = '#8FBC94';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(4, -15, 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#F4C15D';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+/* ============================================================
    HERO SCENE
    ============================================================ */
 function drawScene(){
@@ -575,7 +693,6 @@ function drawScene(){
   c.style.width = '100%';
   c.style.maxWidth = '600px';
   const ctx = c.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
   const w = c.width, h = c.height;
 
   // sky
@@ -600,11 +717,9 @@ function drawScene(){
     ctx.fillRect(x, h*0.72, 6, 6);
   }
 
-  // small lilies scattered in scene (static, decorative)
-  const bloomCanvas = document.createElement('canvas');
-  drawSprite(bloomCanvas, LILY_BLOOM_ROWS, PAL_LILY, 4);
-  [40, 150, 470, 540].forEach((x,i)=>{
-    ctx.drawImage(bloomCanvas, x, h - 108 - (i%2===0?0:6));
+  // Vector Lilies in scene background
+  [40, 140, 460, 540].forEach((x,i)=>{
+    drawVectorLily(ctx, x, h - 35 - (i%2===0?0:6), 0.75);
   });
 
   // cat sitting in the grass
@@ -642,7 +757,7 @@ function updateCountdown(){
 setInterval(updateCountdown, 1000);
 
 /* ============================================================
-   PORTRAIT (Pamuk the cat, small, blinking)
+   PORTRAIT (Pamuk the cat)
    ============================================================ */
 function makePortrait(container){
   const c = document.createElement('canvas');
@@ -654,7 +769,7 @@ makePortrait(document.getElementById('cat-portrait-holder'));
 makePortrait(document.getElementById('cat-portrait-holder-2'));
 
 /* ============================================================
-   GARDEN — CLICKABLE LILIES
+   GARDEN — CLICKABLE VECTOR LILIES
    ============================================================ */
 const REASONS = [
   "Zambaklar kadar zarif ve güzelsin. 🌷",
@@ -673,15 +788,17 @@ let openedCount = 0;
 REASONS.forEach((reason, i) => {
   const slot = document.createElement('div');
   slot.className = 'lily-slot';
-  const canvas = document.createElement('canvas');
-  slot.appendChild(canvas);
+  
+  const iconHolder = document.createElement('div');
+  iconHolder.className = 'lily-icon-holder';
+  iconHolder.innerHTML = SVG_LILY_BUD;
+  slot.appendChild(iconHolder);
+
   const hint = document.createElement('div');
   hint.className = 'lily-hint';
   hint.textContent = '● dokun';
   slot.appendChild(hint);
   gardenRow.appendChild(slot);
-
-  drawSprite(canvas, LILY_BUD_ROWS, PAL_LILY_BUD, 5);
 
   const dot = document.createElement('div');
   dot.className = 'dot';
@@ -691,7 +808,7 @@ REASONS.forEach((reason, i) => {
   slot.addEventListener('click', () => {
     if(!bloomed){
       bloomed = true;
-      drawSprite(canvas, LILY_BLOOM_ROWS, PAL_LILY, 5);
+      iconHolder.innerHTML = SVG_LILY_BLOOM;
       hint.style.opacity = 0;
       dot.classList.add('done');
       openedCount++;
@@ -701,7 +818,7 @@ REASONS.forEach((reason, i) => {
       reasonCard.textContent = reason;
       reasonCard.style.opacity = 1;
     }, 150);
-    spawnBurst(canvas, 'heart');
+    spawnBurst(slot, 'heart');
   });
 });
 
